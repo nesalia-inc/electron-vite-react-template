@@ -15,7 +15,9 @@ This document defines the specifications for an Electron desktop application tem
 | State Management | TanStack Query + Zustand |
 | Routing | TanStack Router |
 | UI Components | shadcn/ui |
-| Styling | Tailwind CSS |
+| Styling | Tailwind CSS + CSS Variables |
+| Theme | Native system theme (dark/light) |
+| i18n | react-i18next |
 | Testing | Vitest |
 | Logging | electron-log |
 | IPC Pattern | orpc |
@@ -24,28 +26,50 @@ This document defines the specifications for an Electron desktop application tem
 
 ### Project Structure
 
+Following electron-vite recommended convention:
+
 ```
-electron-template/
-├── electron/
-│   ├── main/           # Main process
-│   │   ├── index.ts    # Entry point
-│   │   ├── ipc/       # IPC handlers
-│   │   └── preload/   # Preload scripts
-│   └── shared/        # Shared types between main/renderer
+electron-vite-react-template/
 ├── src/
-│   ├── components/    # React components (including shadcn)
-│   ├── hooks/         # Custom React hooks
-│   ├── lib/           # Utilities and helpers
-│   ├── routes/        # TanStack Router routes
-│   ├── stores/        # Zustand stores
-│   ├── App.tsx        # Root component
-│   └── main.tsx       # Renderer entry point
-├── package.json
+│   ├── main/
+│   │   ├── index.ts    # Main process entry point
+│   │   └── ...         # Main process modules
+│   ├── preload/
+│   │   ├── index.ts    # Preload script entry point
+│   │   └── ...         # Preload modules
+│   └── renderer/
+│       ├── src/
+│       │   ├── components/    # React components (including shadcn)
+│       │   │   └── ui/       # shadcn/ui components
+│       │   ├── hooks/         # Custom React hooks
+│       │   ├── lib/           # Utilities and helpers
+│       │   ├── routes/        # TanStack Router routes
+│       │   ├── stores/        # Zustand stores
+│       │   ├── i18n/          # i18n configuration and translations
+│       │   ├── App.tsx        # Root component
+│       │   └── main.tsx       # Renderer entry point
+│       ├── index.html         # Renderer HTML entry
+│       └── env.d.ts          # TypeScript declarations
+├── tests/                    # Test files
+│   ├── main/                # Main process tests
+│   ├── preload/             # Preload script tests
+│   └── renderer/            # Renderer tests
 ├── electron.vite.config.ts
+├── package.json
 ├── tailwind.config.js
 ├── tsconfig.json
-└── vitest.config.ts
+├── tsconfig.node.json
+├── tsconfig.web.json
+├── vitest.config.ts
+└── .github/
+    └── workflows/
+        └── ci.yml           # CI: lint, type-check, test
 ```
+
+**Default entry points (electron-vite auto-discovery):**
+- Main process: `src/main/index.ts`
+- Preload script: `src/preload/index.ts`
+- Renderer: `src/renderer/index.html`
 
 ### Process Model
 
@@ -95,8 +119,26 @@ const result = await greet();
 ### Styling
 
 - Tailwind CSS for utility-first styling
-- Dark/Light mode support via CSS variables
-- shadcn/ui components use Tailwind CSS with CSS variables for theming
+- CSS variables for theming
+- shadcn/ui components use Tailwind CSS with CSS variables
+
+### Theme Support
+
+Based on shadcn/ui theme provider:
+
+- `ThemeProvider` component with system/dark/light modes
+- `useTheme` hook for theme management
+- `ModeToggle` component for user preference
+- Native system theme detection via Electron `nativeTheme` API
+- Real-time listener for OS theme changes
+- Persist user preference in localStorage
+
+### Internationalization (i18n)
+
+- `react-i18next` for translations
+- Support for multiple locales
+- Language detection from system locale
+- Lazy loading of translation files
 
 ## Development Workflow
 
@@ -139,6 +181,53 @@ Output formats:
 - Windows: NSIS installer, portable exe
 - macOS: DMG, zip
 - Linux: AppImage, deb
+
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/ci.yml`):
+
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm test
+```
 
 ## Testing Strategy
 
