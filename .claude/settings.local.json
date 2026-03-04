@@ -3,7 +3,11 @@
     "allow": [
       "Bash(gh issue update:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm lint)",
+      "Bash(pnpm test)",
+      "Bash(pnpm add:*)"
     ]
   }
 }

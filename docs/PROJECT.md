@@ -20,7 +20,7 @@ This document defines the specifications for an Electron desktop application tem
 | i18n | react-i18next |
 | Testing | Vitest |
 | Logging | electron-log |
-| IPC Pattern | orpc |
+| IPC Pattern | contextBridge + ipcRenderer |
 
 ## Architecture
 
@@ -81,21 +81,20 @@ electron-vite-react-template/
 
 ### IPC Communication
 
-Communication between main and renderer processes uses `orpc` for type-safe IPC:
+Communication between main and renderer processes uses `contextBridge` pattern:
 
-- Shared procedures between main and renderer
-- Full type inference on both sides
-- Simple function-based API
+- Expose safe APIs to renderer via contextBridge
+- Using @electron-toolkit/preload for Electron APIs
+- Type-safe IPC with ipcRenderer.invoke
 
 ```typescript
-// Main process
-const procedures = {
-  greet: () => 'Hello from main!',
-};
+// Preload
+contextBridge.exposeInMainWorld('api', {
+  getSystemTheme: () => ipcRenderer.invoke('get-system-theme')
+})
 
-// Renderer (auto-typed)
-const { greet } = useElectronProcedures();
-const result = await greet();
+// Renderer
+const theme = await window.api.getSystemTheme()
 ```
 
 ### State Management
@@ -239,7 +238,7 @@ jobs:
 
 - Context isolation enabled
 - Node integration disabled in renderer
-- orpc handles IPC communication safely via preload
+- contextBridge handles IPC communication safely via preload
 - CSP headers configured
 
 ## Future Considerations
