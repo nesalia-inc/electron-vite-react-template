@@ -2,6 +2,8 @@
 
 A modern Electron desktop application template with Vite, React, and TypeScript.
 
+[![npm package](https://img.shields.io/npm/v/@nesalia/template-electron-vite-react)](https://www.npmjs.com/package/@nesalia/template-electron-vite-react)
+
 ## Features
 
 - **Electron** - Desktop application framework
