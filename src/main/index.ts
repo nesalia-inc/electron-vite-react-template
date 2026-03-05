@@ -1,7 +1,7 @@
 import { app, shell, BrowserWindow, nativeTheme, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import log from 'electron-log/main'
+import log from 'electron-log/main.js'
 
 // Initialize logging
 log.initialize()
