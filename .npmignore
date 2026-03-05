@@ -1,0 +1,11 @@
+# Documentation (these stay in the main project, not the template)
+README.md
+LICENSE
+SECURITY.md
+CONTRIBUTING.md
+docs/
+
+# Development artifacts
+node_modules/
+out/
+.claude/
