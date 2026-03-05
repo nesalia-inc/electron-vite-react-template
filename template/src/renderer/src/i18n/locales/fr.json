@@ -1,8 +1,0 @@
-{
-  "welcome": "Bienvenue dans votre application Electron !",
-  "theme": {
-    "light": "Clair",
-    "dark": "Sombre",
-    "system": "Système"
-  }
-}
